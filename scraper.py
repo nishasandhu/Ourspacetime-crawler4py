@@ -8,10 +8,12 @@ def scraper(url, resp):
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
-    #only crawl URLs with this domain
+    #only crawl URLs with this domain, move only to is_valid
     only = ['ics.uci.edu/', 'cs.uci.edu/', 'informatics.uci.edu/', 'stat.uci.edu/', 'today.uci.edu/department/information_computer_sciences/']
     #stores the scrapped hyperlinks 
     hyperlinks = []
+    #total_count in frontier for unique links ?
+    
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -21,6 +23,7 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
+    
     if resp.status != 200:
         print('error') #DO we need to do anything here?
     else:
@@ -30,6 +33,9 @@ def extract_next_links(url, resp):
         #look for hyperlinks
         for r in soup.find_all(href=True):
             print(r) #checking first before continuing code
+            #defragment r
+            #check word count, is max? beautiful soup
+            #add r to hyperlinks !
     return hyperlinks
 
 def is_valid(url):
