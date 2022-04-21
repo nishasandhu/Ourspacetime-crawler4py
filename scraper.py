@@ -1,4 +1,3 @@
-#TESTING
 import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
@@ -12,7 +11,7 @@ def extract_next_links(url, resp):
     only = ['ics.uci.edu/', 'cs.uci.edu/', 'informatics.uci.edu/', 'stat.uci.edu/', 'today.uci.edu/department/information_computer_sciences/']
     #stores the scrapped hyperlinks 
     hyperlinks = []
-    #total_count in frontier for unique links ?
+    #total_count in frontier for unique links ? #1
     
     # Implementation required.
     # url: the URL that was used to get the page
@@ -34,8 +33,10 @@ def extract_next_links(url, resp):
         for r in soup.find_all(href=True):
             print(r) #checking first before continuing code
             #defragment r
-            #check word count, is max? beautiful soup
-
+            #check if word count is max (global) beautiful soup #2
+            #50 most common words in all domains, use code from hw1 #3
+            #How many subdomains in the ics.uci.edu domain #4 (global counter?) WRITE ANSWERS IN FILE IN CASE SERVER DIES
+            
             #add r to hyperlinks !
     return hyperlinks
 
@@ -43,6 +44,16 @@ def is_valid(url):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
+    
+    #move only here
+    #use regex, if link not in only return false
+    
+    #Crawl pages with high textual information content
+    #Detect and avoid infinite traps
+    #Detect and avoid sets of similar pages with no info
+    #Detect and avoid dead URLs that return a 200 status but no data
+    #Detect and avoid crawling very large files, especially if they have low information value
+    
     try:
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
