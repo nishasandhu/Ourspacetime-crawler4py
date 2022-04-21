@@ -8,6 +8,9 @@ def scraper(url, resp):
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
+    #only crawl URLs with this domain
+    only = ['ics.uci.edu/', 'cs.uci.edu/', 'informatics.uci.edu/', 'stat.uci.edu/', 'today.uci.edu/department/information_computer_sciences/']
+    #stores the scrapped hyperlinks 
     hyperlinks = []
     # Implementation required.
     # url: the URL that was used to get the page
@@ -19,11 +22,15 @@ def extract_next_links(url, resp):
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
     if resp.status != 200:
-        print("") #DO we need to do anything here?
+        print('error') #DO we need to do anything here?
     else:
+        #if status is 200
+        #use BesutifulSoup to access contents easier
         soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
-        print(soup.prettify())
-    return list()
+        #look for hyperlinks
+        for r in soup.find_all(href=True):
+            print(r) #checking first before continuing code
+    return hyperlinks
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
