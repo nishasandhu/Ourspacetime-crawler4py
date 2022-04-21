@@ -35,7 +35,8 @@ def extract_next_links(url, resp):
             print(r) #checking first before continuing code
             #defragment r
             #check word count, is max? beautiful soup
-            #add r to hyperlinks ! test
+
+            #add r to hyperlinks !
     return hyperlinks
 
 def is_valid(url):
