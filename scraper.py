@@ -2,18 +2,14 @@ import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
+unique_urls = [] # or frontier.total_count / len (self.save) #1
+
+
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
-    #only crawl URLs with this domain, move only to is_valid
-    only = ['ics.uci.edu/', 'cs.uci.edu/', 'informatics.uci.edu/', 'stat.uci.edu/', 'today.uci.edu/department/information_computer_sciences/']
-    #stores the scrapped hyperlinks 
-    hyperlinks = []
-    #total_count in frontier for unique links ? #1
-    
-    # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
     # resp.status: the status code returned by the server. 200 is OK, you got the page. Other numbers mean that there was some kind of problem.
@@ -22,6 +18,14 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
+    
+    #only crawl URLs with this domain, move only to is_valid
+    only = ['ics.uci.edu/', 'cs.uci.edu/', 'informatics.uci.edu/', 'stat.uci.edu/', 'today.uci.edu/department/information_computer_sciences/']
+    #stores the scrapped hyperlinks 
+    hyperlinks = []
+    #total_count in frontier for unique links ? #1
+    
+    #change relative urls to absolute?
     
     if resp.status != 200:
         print('error') #DO we need to do anything here?
@@ -33,11 +37,17 @@ def extract_next_links(url, resp):
         for r in soup.find_all(href=True):
             print(r) #checking first before continuing code
             #defragment r
-            #check if word count is max (global) beautiful soup #2
+            defragment = r.split("#")
+            print(defragment[0])
+            
+            #check word count, max (global)#2
+            
             #50 most common words in all domains, use code from hw1 #3
+            
             #How many subdomains in the ics.uci.edu domain #4 (global counter?) WRITE ANSWERS IN FILE IN CASE SERVER DIES
             
-            #add r to hyperlinks !
+            #add defrag url to hyperlinks
+            hyperlinks.append(defragment[0])
     return hyperlinks
 
 def is_valid(url):
