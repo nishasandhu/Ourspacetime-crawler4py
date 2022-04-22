@@ -2,7 +2,9 @@ import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
-unique_urls = [] # or frontier.total_count / len (self.save) #1
+unique_urls = [] # or frontier.total_count / len (self.save) ? #1
+max_word_count = 0 #2
+common_words = {} #3
 
 
 def scraper(url, resp):
@@ -10,6 +12,7 @@ def scraper(url, resp):
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
+    print("extracting")
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
     # resp.status: the status code returned by the server. 200 is OK, you got the page. Other numbers mean that there was some kind of problem.
@@ -19,8 +22,6 @@ def extract_next_links(url, resp):
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
     
-    #only crawl URLs with this domain, move only to is_valid
-    only = ['ics.uci.edu/', 'cs.uci.edu/', 'informatics.uci.edu/', 'stat.uci.edu/', 'today.uci.edu/department/information_computer_sciences/']
     #stores the scrapped hyperlinks 
     hyperlinks = []
     #total_count in frontier for unique links ? #1
@@ -34,13 +35,18 @@ def extract_next_links(url, resp):
         #use BesutifulSoup to access contents easier
         soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
         #look for hyperlinks
-        for r in soup.find_all(href=True):
-            print(r) #checking first before continuing code
+        for r in soup.find_all('a'):
+            #print(r.get('href'))
+        #for r in soup.find_all(href=True):
+            #print(r) #checking first before continuing code
+            
             #defragment r
-            defragment = r.split("#")
-            print(defragment[0])
+            if r.get('href') != "#":  
+                defragment = r.get('href').split("#")
+                #print(defragment)
             
             #check word count, max (global)#2
+            #
             
             #50 most common words in all domains, use code from hw1 #3
             
@@ -55,8 +61,11 @@ def is_valid(url):
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
     
-    #move only here
-    #use regex, if link not in only return false
+    #only crawl URLs with this domain
+    only = ['ics.uci.edu/',
+            'cs.uci.edu/',
+            'informatics.uci.edu/',
+            'stat.uci.edu/', 'today.uci.edu/department/information_computer_sciences/']
     
     #Crawl pages with high textual information content
     #Detect and avoid infinite traps
@@ -64,20 +73,24 @@ def is_valid(url):
     #Detect and avoid dead URLs that return a 200 status but no data
     #Detect and avoid crawling very large files, especially if they have low information value
     
-    try:
-        parsed = urlparse(url)
-        if parsed.scheme not in set(["http", "https"]):
-            return False
-        return not re.match(
-            r".*\.(css|js|bmp|gif|jpe?g|ico"
-            + r"|png|tiff?|mid|mp2|mp3|mp4"
-            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
-            + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
-            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
-            + r"|epub|dll|cnf|tgz|sha1"
-            + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+    if any(link in url for link in only):
+        print(url)
+        try:
+            parsed = urlparse(url)
+            if parsed.scheme not in set(["http", "https"]):
+                return False
+            return not re.match(
+                r".*\.(css|js|bmp|gif|jpe?g|ico"
+                + r"|png|tiff?|mid|mp2|mp3|mp4"
+                + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
+                + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
+                + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
+                + r"|epub|dll|cnf|tgz|sha1"
+                + r"|thmx|mso|arff|rtf|jar|csv"
+                + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
 
-    except TypeError:
-        print ("TypeError for ", parsed)
-        raise
+        except TypeError:
+            print ("TypeError for ", parsed)
+            raise
+    else:
+        return False
