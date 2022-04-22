@@ -58,7 +58,7 @@ def extract_next_links(url, resp):
         #look for hyperlinks on webpage
         for r in soup.find_all('a'):            
             #defragment the url
-            if r.get('href') != None: #none type error? 
+            if r.get('href') != None and r.get('href') != "#": #none type error? 
                 defragment = r.get('href').split("#")
                 #print(defragment)
                 #update max webpage if necessary
