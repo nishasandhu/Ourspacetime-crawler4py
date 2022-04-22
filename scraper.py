@@ -38,9 +38,9 @@ def extract_next_links(url, resp):
     #change relative urls to absolute?
     
     if resp.status != 200:
-        print('error: ' + resp.error) #prints out what kind of error it is
-    elif resp.status == 200 and resp.raw_response.content == None: #assuming None when no data
-        blacklist.add(resp.url)
+        print('error: ' +str(resp.error)) #prints out what kind of error it is
+    elif resp.status == 200 and resp.raw_response.content == None: #assuming None when no data, should we blacklist when 200 or just do nothing?
+        blacklist.add(resp.url) #also add url?
     else:
         #if status is 200
         #use BesutifulSoup to access contents easier
@@ -73,18 +73,22 @@ def extract_next_links(url, resp):
                 #add defragmented url to hyperlinks list
                 hyperlinks.append(defragment[0])
     
-    #write info to report file
+        #write info to report file
     f.seek(0)
     f.write("unique urls: ")
     f.write(str(len(unique_urls))) #test unique urls
     f.write("\n")
+    f.flush()
     f.write("subdomains of ics.uci.edu: ")
     f.write(str(len(subdomains))) #test
     f.write("\n")
+    f.flush()
     f.write("longest webpage: ")
     f.write(str(max_webpage))
+    f.write("\n")
+    f.flush()
     f.close() #test file writin when server up
-    
+
     return hyperlinks
 
 def is_valid(url):
@@ -95,10 +99,10 @@ def is_valid(url):
     global unique_urls
     
     #only crawl URLs with these domains
-    only = ['ics.uci.edu/',
-            'cs.uci.edu/',
-            'informatics.uci.edu/',
-            'stat.uci.edu/', 'today.uci.edu/department/information_computer_sciences/']
+    only = ["ics.uci.edu/",
+            "cs.uci.edu/",
+            "informatics.uci.edu/",
+            "stat.uci.edu/", "today.uci.edu/department/information_computer_sciences/"]
     
     #CHECKS
     #Crawl pages with high textual information content
@@ -108,11 +112,13 @@ def is_valid(url):
     #Detect and avoid crawling very large files, especially if they have low information value     
     
     if url in unique_urls or blacklist:
+            print("already visited or blacklisted")
             return False #ensure the same url not entered again
       
     #only proceed with url if has correct domain
     if any(link in url for link in only):
         print(url)
+        print("^ should have correct domain")
         try:
             parsed = urlparse(url)
             if parsed.scheme not in set(["http", "https"]):
@@ -128,6 +134,8 @@ def is_valid(url):
                 + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()):
                 return False
             else:
+                print(url)
+                print("^just added to unique urls")
                 unique_urls.add(url)#add to unique urls to mark as traversed
                 if "ics.uci.edu" in url:
                     subdomains.add(url)#add to list of subdomains
