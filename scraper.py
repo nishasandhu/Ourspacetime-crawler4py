@@ -38,7 +38,9 @@ def extract_next_links(url, resp):
     #change relative urls to absolute?
     
     if resp.status != 200:
-        print('error') #DO we need to do anything here?
+        print('error: ' + resp.error) #prints out what kind of error it is
+    elif resp.status == 200 and resp.raw_response.content == None: #assuming None when no data
+        blacklist.add(resp.url)
     else:
         #if status is 200
         #use BesutifulSoup to access contents easier
@@ -58,7 +60,7 @@ def extract_next_links(url, resp):
         #look for hyperlinks on webpage
         for r in soup.find_all('a'):            
             #defragment the url
-            if r.get('href') != None: #none type error? 
+            if r.get('href') != None and r.get('href') != "#": #none type error? 
                 defragment = r.get('href').split("#")
                 #print(defragment)
                 #update max webpage if necessary
@@ -105,7 +107,7 @@ def is_valid(url):
     #Detect and avoid dead URLs that return a 200 status but no data
     #Detect and avoid crawling very large files, especially if they have low information value     
     
-    if url in unique_urls:
+    if url in unique_urls or blacklist:
             return False #ensure the same url not entered again
       
     #only proceed with url if has correct domain
