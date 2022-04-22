@@ -2,10 +2,13 @@ import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from collections import Counter
+import nltk
 
-unique_urls = set() #1 , might need to be a list for duplicate checking later on
+unique_urls = set() #1 
+subdomainds = set()
 blacklist = set()
-max_word_count = 0 #2
+max_words = 0 #2
+max_webpage = ""
 common_words = {} #3
 
 
@@ -16,6 +19,8 @@ def scraper(url, resp):
 def extract_next_links(url, resp):
     file_x = open("report", "w+")
     global unique_urls
+    global max_words
+    global max_webpage
     print("extracting")
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -40,37 +45,45 @@ def extract_next_links(url, resp):
         soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
         soup_content = BeautifulSoup(resp.raw_response.content)
         
-        text_paragraphs = (''.join(s.findAll(text=True)) for s in soup_content.findAll('p'))
+        text_paragraphs = (''.join(s.findAll(text=True)) for s in soup_content.findAll('p')) #CITE SOURCE
         text_divs = (''.join(s.findAll(text=True)) for s in soup_content.findAll('div'))
+        
+        text = text_paragraphs + text_divs
+        
+        nltk_text = nltk.Text(text)
+        
+        num_words = len(nltk_text)
         
         #look for hyperlinks
         for r in soup.find_all('a'):
             #print(r.get('href'))
-        #for r in soup.find_all(href=True):
+            #for r in soup.find_all(href=True):
             #print(r) #checking first before continuing code
             
             #defragment r
             if r.get('href') != "#": #none type error? 
                 defragment = r.get('href').split("#")
                 #print(defragment)
+                if num_words > max_words:
+                    max_words = num_words
+                    max_webpage = defragment[0]
+                    #num of words
             
-            #FIXME
-            #check word count, max (global)#2
-            
-            #50 most common words in all domains, use code from hw1 #3
-            
-            #How many subdomains in the ics.uci.edu domain #4 (global counter?) WRITE ANSWERS IN FILE IN CASE SERVER DIES
+                #50 most common words in all domains, use code from hw1 #3
             
                 #add defrag url to hyperlinks
                 hyperlinks.append(defragment[0])
     
     f.seek(0)
     f.write("unique urls: " + str((len(unique_urls))) #test unique urls works
+    f.write("subdomains of ics.uci.edu: " + str((len(subdomains))) #test
+    f.write("longest webpage: " + max_webpage)
     f.close() #test file writin when server up
     
     return hyperlinks
 
 def is_valid(url):
+    global unique_urls
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
@@ -110,6 +123,8 @@ def is_valid(url):
                 return False
             else:
                 unique_urls.add(url)
+                if "ics.uci.edu" in url:
+                    subdomains.add(url)#add subdomains
                 return True
 
         except TypeError:
