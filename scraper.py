@@ -64,9 +64,9 @@ def extract_next_links(url, resp):
                 #add defrag url to hyperlinks
                 hyperlinks.append(defragment[0])
     
-    f.seek(0)
-    f.write("unique urls: " + str((len(unique_urls))) #test unique urls works
-    f.close() #test file writin when server up
+    file_x.seek(0)
+    file_x.write("unique urls: " + str((len(unique_urls)))) #test unique urls works
+    file_x.close() #test file writin when server up
     
     return hyperlinks
 
