@@ -38,7 +38,7 @@ def extract_next_links(url, resp):
     #change relative urls to absolute?
     
     if resp.status != 200:
-        print('error: ' + resp.error) #prints out what kind of error it is
+        print('error: ' + str(resp.status)) #prints out what kind of error it is
     elif resp.status == 200 and resp.raw_response.content == None: #assuming None when no data
         blacklist.add(resp.url)
     else:
