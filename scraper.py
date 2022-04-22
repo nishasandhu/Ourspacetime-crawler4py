@@ -49,20 +49,16 @@ def extract_next_links(url, resp):
         text_paragraphs = (''.join(s.findAll(text=True)) for s in soup_content.findAll('p')) #CITE SOURCE
         text_divs = (''.join(s.findAll(text=True)) for s in soup_content.findAll('div'))
         
-        #convert to nltk text
+        #convert to nltk text to tokenize
         nltk_text = nltk.Text(text_paragraphs)
         nltk_text2 = nltk.Text(text_divs)
         #number of words on webpage
         num_words = len(nltk_text) + len(nltk_text2)
         
         #look for hyperlinks on webpage
-        for r in soup.find_all('a'):
-            #print(r.get('href'))
-            #for r in soup.find_all(href=True):
-            #print(r)
-            
+        for r in soup.find_all('a'):            
             #defragment the url
-            if r.get('href') != "#": #none type error? 
+            if r.get('href') != None: #none type error? 
                 defragment = r.get('href').split("#")
                 #print(defragment)
                 #update max webpage if necessary
