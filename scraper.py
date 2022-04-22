@@ -17,11 +17,11 @@ def scraper(url, resp):
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
-    file_x = open("report", "w+")
+    f = open("report", "w+")
     global unique_urls
     global max_words
     global max_webpage
-    print("extracting")
+    
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
     # resp.status: the status code returned by the server. 200 is OK, you got the page. Other numbers mean that there was some kind of problem.
@@ -48,11 +48,12 @@ def extract_next_links(url, resp):
         text_paragraphs = (''.join(s.findAll(text=True)) for s in soup_content.findAll('p')) #CITE SOURCE
         text_divs = (''.join(s.findAll(text=True)) for s in soup_content.findAll('div'))
         
-        text = text_paragraphs + text_divs
         
-        nltk_text = nltk.Text(text)
+        nltk_text = nltk.Text(text_paragraphs)
         
-        num_words = len(nltk_text)
+        nltk_text2 = nltk.Text(text_divs)
+        
+        num_words = len(nltk_text) + len(nltk_text2)
         
         #look for hyperlinks
         for r in soup.find_all('a'):
@@ -75,9 +76,14 @@ def extract_next_links(url, resp):
                 hyperlinks.append(defragment[0])
     
     f.seek(0)
-    f.write("unique urls: " + str((len(unique_urls))) #test unique urls works
-    f.write("subdomains of ics.uci.edu: " + str((len(subdomains))) #test
-    f.write("longest webpage: " + max_webpage)
+    f.write("unique urls: ")
+    f.write(str(len(unique_urls))) #test unique urls
+    f.write("\n")
+    f.write("subdomains of ics.uci.edu: ")
+    f.write(str(len(subdomains))) #test
+    f.write("\n")
+    f.write("longest webpage: ")
+    f.write(str(max_webpage))
     f.close() #test file writin when server up
     
     return hyperlinks
