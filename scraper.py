@@ -5,7 +5,7 @@ from collections import Counter
 import nltk
 
 unique_urls = set() #1 
-subdomainds = set()
+subdomains = set()
 blacklist = set()
 max_words = 0 #2
 max_webpage = ""
