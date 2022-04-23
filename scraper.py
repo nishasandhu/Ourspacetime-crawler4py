@@ -80,11 +80,11 @@ def extract_next_links(url, resp):
 
         #write info to report file
         f.seek(0)
-        f.write("unique urls: ", str(len(unique_urls)), "\n")
+        f.write("unique urls: " + str(len(unique_urls)) + "\n")
         f.flush()
-        f.write("subdomains of ics.uci.edu: ", str(len(subdomains)), "\n")
+        f.write("subdomains of ics.uci.edu: " + str(len(subdomains)) + "\n")
         f.flush()
-        f.write("longest webpage: ", str(max_webpage), "\n")
+        f.write("longest webpage: " + str(max_webpage) + "\n")
         f.flush()
     except Exception as e:
         print("error occurred", e)
