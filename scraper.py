@@ -26,68 +26,70 @@ def extract_next_links(url, resp):
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
     
-    f = open("report", "w+") #create file for report
+    # report findings
     global unique_urls
     global max_words
     global max_webpage
     
-    #stores the scrapped hyperlinks 
-    hyperlinks = []
-    #total_count in frontier for unique links ? #1
-    
-    #change relative urls to absolute?
-    
-    if resp.status != 200:
-        print('error: ' +str(resp.error)) #prints out what kind of error it is
-    elif resp.status == 200 and resp.raw_response.content == None: #assuming None when no data, should we blacklist when 200 or just do nothing?
-        blacklist.add(resp.url) #also add url?
-    else:
-        #if status is 200
-        #use BesutifulSoup to access contents easier
-        soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
-        soup_content = BeautifulSoup(resp.raw_response.content)
+    try: 
+        f = open("report", "w+") #create file for report
         
-        #gather all text on webpage
-        text_paragraphs = (''.join(s.findAll(text=True)) for s in soup_content.findAll('p')) #CITE SOURCE
-        text_divs = (''.join(s.findAll(text=True)) for s in soup_content.findAll('div'))
-        
-        #convert to nltk text to tokenize
-        nltk_text = nltk.Text(text_paragraphs)
-        nltk_text2 = nltk.Text(text_divs)
-        #number of words on webpage
-        num_words = len(nltk_text) + len(nltk_text2)
-        
-        #look for hyperlinks on webpage
-        for r in soup.find_all('a'):            
-            #defragment the url
-            if r.get('href') != None and r.get('href') != "#": #none type error? 
-                defragment = r.get('href').split("#")
-                #print(defragment)
-                #update max webpage if necessary
-                if num_words > max_words:
-                    max_words = num_words
-                    max_webpage = defragment[0]
-            
-                #50 most common words in all domains, use code from hw1 #3 or nltk or
-            
-                #add defragmented url to hyperlinks list
-                hyperlinks.append(defragment[0])
-    
+        # preset report findings in case server crashes and we have to start it up again
+        #will need to strip lines to get only numbers/url
+        # unique_urls = f.readline()
+        # max_words = f.readline()
+        # max_webpage = f.readline()
+        #stores the scrapped hyperlinks 
+        hyperlinks = []
+
+        if resp.status != 200:
+            print('error: ', str(resp.error)) #prints out what kind of error it is
+        elif resp.status == 200 and resp.raw_response.content == None: 
+            #assuming None when no data, should we blacklist when 200 or just do nothing?
+            blacklist.add(resp.url) #also add url?
+        else:
+            #status is 200
+            #use BeautifulSoup to access contents easier
+            soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
+            soup_content = BeautifulSoup(resp.raw_response.content)
+
+            #gather all text on webpage
+            text_paragraphs = (''.join(s.findAll(text=True)) for s in soup_content.findAll('p')) #CITE SOURCE
+            text_divs = (''.join(s.findAll(text=True)) for s in soup_content.findAll('div'))
+
+            #convert to nltk text to tokenize
+            nltk_text = nltk.Text(text_paragraphs)
+            nltk_text2 = nltk.Text(text_divs)
+            #number of words on webpage
+            num_words = len(nltk_text) + len(nltk_text2)
+
+            #look for hyperlinks on webpage
+            for r in soup.find_all('a'):            
+                #defragment the url
+                if r.get('href') != None and r.get('href') != "#": #none type error? 
+                    defragment = r.get('href').split("#")
+                    #update max webpage if necessary
+                    if num_words > max_words:
+                        max_words = num_words
+                        max_webpage = defragment[0]
+
+                    #50 most common words in all domains, use code from hw1 #3 or nltk or
+
+                    #add defragmented url to hyperlinks list
+                    hyperlinks.append(defragment[0])
+
         #write info to report file
-    f.seek(0)
-    f.write("unique urls: ")
-    f.write(str(len(unique_urls))) #test unique urls
-    f.write("\n")
-    f.flush()
-    f.write("subdomains of ics.uci.edu: ")
-    f.write(str(len(subdomains))) #test
-    f.write("\n")
-    f.flush()
-    f.write("longest webpage: ")
-    f.write(str(max_webpage))
-    f.write("\n")
-    f.flush()
-    f.close() #test file writin when server up
+        f.seek(0)
+        f.write("unique urls: ", str(len(unique_urls)), "\n")
+        f.flush()
+        f.write("subdomains of ics.uci.edu: ", str(len(subdomains)), "\n")
+        f.flush()
+        f.write("longest webpage: ", str(max_webpage), "\n")
+        f.flush()
+    except Exception as e:
+        print("error occurred", e)
+    finally:
+        f.close() #test file writin when server up
 
     return hyperlinks
 
