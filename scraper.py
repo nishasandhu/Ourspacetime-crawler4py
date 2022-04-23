@@ -36,9 +36,9 @@ def extract_next_links(url, resp):
         
         # preset report findings in case server crashes and we have to start it up again
         #will need to strip lines to get only numbers/url
-        unique_urls = int(f.readline().strip("\n").replace("unique urls: ", "")
-        max_words = int(f.readline().strip("\n").replace("subdomains of ics.uci.edu: ", "")
-        max_webpage = f.readline().strip("\n").replace("longest webpage: ", ""
+        unique_urls = int(f.readline().strip("\n").replace("unique urls: ", ""))
+        max_words = int(f.readline().strip("\n").replace("subdomains of ics.uci.edu: ", ""))
+        max_webpage = f.readline().strip("\n").replace("longest webpage: ", "")
         #stores the scrapped hyperlinks 
         hyperlinks = []
 
