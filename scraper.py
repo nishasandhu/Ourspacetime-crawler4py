@@ -36,9 +36,9 @@ def extract_next_links(url, resp):
         
         # preset report findings in case server crashes and we have to start it up again
         #will need to strip lines to get only numbers/url
-        # unique_urls = f.readline()
-        # max_words = f.readline()
-        # max_webpage = f.readline()
+        unique_urls = int(f.readline().strip("\n").replace("unique urls: ", "")
+        max_words = int(f.readline().strip("\n").replace("subdomains of ics.uci.edu: ", "")
+        max_webpage = f.readline().strip("\n").replace("longest webpage: ", ""
         #stores the scrapped hyperlinks 
         hyperlinks = []
 
@@ -129,7 +129,7 @@ def is_valid(url):
                 r".*\.(css|js|bmp|gif|jpe?g|ico"
                 + r"|png|tiff?|mid|mp2|mp3|mp4"
                 + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
-                + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
+                + r"|ps|eps|tex|ppt|pptx|ppsx|doc|docx|xls|xlsx|names"
                 + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
                 + r"|epub|dll|cnf|tgz|sha1"
                 + r"|thmx|mso|arff|rtf|jar|csv"
