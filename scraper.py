@@ -99,10 +99,10 @@ def is_valid(url):
     global unique_urls
     
     #only crawl URLs with these domains
-    only = ["ics.uci.edu/",
-            "cs.uci.edu/",
-            "informatics.uci.edu/",
-            "stat.uci.edu/", "today.uci.edu/department/information_computer_sciences/"]
+    only = [".ics.uci.edu/",
+            ".cs.uci.edu/",
+            ".informatics.uci.edu/",
+            ".stat.uci.edu/", "today.uci.edu/department/information_computer_sciences/"]
     
     #CHECKS
     #Crawl pages with high textual information content
@@ -137,7 +137,7 @@ def is_valid(url):
                 print(url)
                 print("^just added to unique urls")
                 unique_urls.add(url)#add to unique urls to mark as traversed
-                if "ics.uci.edu" in url:
+                if ".ics.uci.edu" in url:
                     subdomains.add(url)#add to list of subdomains
                 return True
 
