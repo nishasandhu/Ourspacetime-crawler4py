@@ -30,17 +30,25 @@ def extract_next_links(url, resp):
     global unique_urls
     global max_words
     global max_webpage
+    global unique_urls_length
+    
+    #stores the scrapped hyperlinks 
+    hyperlinks = []
     
     try: 
         f = open("report", "w+") #create file for report
         
         # preset report findings in case server crashes and we have to start it up again
         #will need to strip lines to get only numbers/url
-        unique_urls = int(f.readline().strip("\n").replace("unique urls: ", ""))
-        max_words = int(f.readline().strip("\n").replace("subdomains of ics.uci.edu: ", ""))
+        unique_urls_length = f.readline().strip("\n").replace("unique urls: ", "")
+        if unique_urls_length != "":
+            unique_urls_length = int(unique_urls_length)
+        else: unique_urls_length = 0
+        max_words = f.readline().strip("\n").replace("subdomains of ics.uci.edu: ", "")
+        if max_words != "":
+            max_words = int(max_words)
+        else: max_words = 0
         max_webpage = f.readline().strip("\n").replace("longest webpage: ", "")
-        #stores the scrapped hyperlinks 
-        hyperlinks = []
 
         if resp.status != 200:
             print('error: ', str(resp.error)) #prints out what kind of error it is
@@ -80,7 +88,7 @@ def extract_next_links(url, resp):
 
         #write info to report file
         f.seek(0)
-        f.write("unique urls: " + str(len(unique_urls)) + "\n")
+        f.write("unique urls: " + str(len(unique_urls)+unique_urls_length) + "\n")
         f.flush()
         f.write("subdomains of ics.uci.edu: " + str(len(subdomains)) + "\n")
         f.flush()
