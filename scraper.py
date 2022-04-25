@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from collections import Counter
 import nltk
+import urllib.request
 
 unique_urls = set() #keeps track of all unique urls we encounter 
 subdomains = set() #keeps track of all subdomains of ics.uci.edu
@@ -54,14 +55,11 @@ def extract_next_links(url, resp):
 
         if resp.status != 200:
             print('error: ', str(resp.error)) #prints out what kind of error it is
-        elif resp.status == 200 and resp.raw_response.content == None: 
-            #assuming None when no data, should we blacklist when 200 or just do nothing?
-            blacklist.add(resp.url) #also add url?
         else:
             #status is 200
             #use BeautifulSoup to access contents easier
             soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
-            soup_content = BeautifulSoup(resp.raw_response.content)
+            soup_content = BeautifulSoup(resp.raw_response.content, 'html.parser')
 
             #gather all text on webpage
             text_paragraphs = (''.join(s.findAll(text=True)) for s in soup_content.findAll('p')) #CITE SOURCE
@@ -73,36 +71,19 @@ def extract_next_links(url, resp):
             #number of words on webpage
             num_words = len(nltk_text) + len(nltk_text2)
 
-            #update max_webpage
-            if num_words > max_words:
-                max_words = num_words
-                max_webpage = resp.url
-            
-            s = 0 #use beautiful soup to find ALL content
-            soup_ALL = BeautifulSoup(resp.raw_response.content, 'html.parser')
-            for r in soup_ALL.find_all('p'):            
-                    s = s + len(r.get_text().split())
-            print(s)
-            if s > 49: #if content greater than 49, add it and find the href
-                #look for hyperlinks on webpage
-                for r in soup.find_all('a'):            
-                    #defragment the url
-                    if r.get('href') != None and r.get('href') != "#": #none type error? 
-                        defragment = r.get('href').split("#")
+            for r in soup.find_all('a'):            
+                #defragment the url
+                if r.get('href') != None and r.get('href') != "#": #none type error? 
+                    defragment = r.get('href').split("#")
+                    #update max webpage if necessary
+                    if num_words > max_words:
+                        max_words = num_words
+                        max_webpage = defragment[0]
 
-                        #50 most common words in all domains, use code from hw1 #3 or nltk or
+                    #50 most common words in all domains, use code from hw1 #3 or nltk or
 
-                        #add defragmented url to hyperlinks list
-                        hyperlinks.append(defragment[0])
-            else: # 49 or less, blacklist but still follow hrefs
-                blacklist.add(resp.url)
-                print('Blacklisted due to low content')
-                #look for hyperlinks on webpage
-                for r in soup.find_all('a'):            
-                    #defragment the url
-                    if r.get('href') != None and r.get('href') != "#": #none type error? 
-                        defragment = r.get('href').split("#")
-                        hyperlinks.append(defragment[0])
+                    #add defragmented url to hyperlinks list
+                    hyperlinks.append(defragment[0])
 
         #write info to report file
         f.seek(0)
@@ -163,6 +144,20 @@ def is_valid(url):
                 + r"|epub|dll|cnf|tgz|sha1"
                 + r"|thmx|mso|arff|rtf|jar|csv"
                 + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()):
+                return False
+            #check status of webpage
+            try:
+                urllib.request.urlopen(url)
+            except urllib.error.HTTPError:
+                print('not 200')
+                return False    
+            #check contents, set at 100 words at least
+            contents = urllib.request.urlopen(url)
+            soup = BeautifulSoup(contents.read(), 'html.parser')
+            s = 0
+            for r in soup.find_all('p'):            
+                    s = s + len(r.get_text().split())
+            if s < 100:
                 return False
             else:
                 print(url)
