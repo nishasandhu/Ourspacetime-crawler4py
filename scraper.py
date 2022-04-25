@@ -36,19 +36,21 @@ def extract_next_links(url, resp):
     hyperlinks = []
     
     try: 
-        f = open("report", "w+") #create file for report
+        f = open("report.txt", "w+") #create file for report
         
         # preset report findings in case server crashes and we have to start it up again
         #will need to strip lines to get only numbers/url
-        unique_urls_length = f.readline().strip("\n").replace("unique urls: ", "")
-        if unique_urls_length != "":
-            unique_urls_length = int(unique_urls_length)
-        else: unique_urls_length = 0
         max_words = f.readline().strip("\n").replace("subdomains of ics.uci.edu: ", "")
         if max_words != "":
             max_words = int(max_words)
         else: max_words = 0
+        
         max_webpage = f.readline().strip("\n").replace("longest webpage: ", "")
+        
+        #done to push read to the right line
+        unique_urls_length = f.readline().strip("\n").replace("unique urls: ", "")
+        for line in f:
+            unique_urls.add(line.rstrip("\n"))
 
         if resp.status != 200:
             print('error: ', str(resp.error)) #prints out what kind of error it is
@@ -88,11 +90,13 @@ def extract_next_links(url, resp):
 
         #write info to report file
         f.seek(0)
-        f.write("unique urls: " + str(len(unique_urls)+unique_urls_length) + "\n")
-        f.flush()
         f.write("subdomains of ics.uci.edu: " + str(len(subdomains)) + "\n")
         f.flush()
         f.write("longest webpage: " + str(max_webpage) + "\n")
+        f.flush()
+        f.write("unique urls: " + str(len(unique_urls)) + "\n")
+        for url in unique_urls:
+            f.write(element + "\n")
         f.flush()
     except Exception as e:
         print("error occurred", e)
