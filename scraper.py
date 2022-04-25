@@ -73,20 +73,36 @@ def extract_next_links(url, resp):
             #number of words on webpage
             num_words = len(nltk_text) + len(nltk_text2)
 
-            #look for hyperlinks on webpage
-            for r in soup.find_all('a'):            
-                #defragment the url
-                if r.get('href') != None and r.get('href') != "#": #none type error? 
-                    defragment = r.get('href').split("#")
-                    #update max webpage if necessary
-                    if num_words > max_words:
-                        max_words = num_words
-                        max_webpage = defragment[0]
+            #update max_webpage
+            if num_words > max_words:
+                max_words = num_words
+                max_webpage = resp.url
+            
+            s = 0 #use beautiful soup to find ALL content
+            soup_ALL = BeautifulSoup(resp.raw_response.content, 'html.parser')
+            for r in soup_ALL.find_all('p'):            
+                    s = s + len(r.get_text().split())
+            print(s)
+            if s > 49: #if content greater than 49, add it and find the href
+                #look for hyperlinks on webpage
+                for r in soup.find_all('a'):            
+                    #defragment the url
+                    if r.get('href') != None and r.get('href') != "#": #none type error? 
+                        defragment = r.get('href').split("#")
 
-                    #50 most common words in all domains, use code from hw1 #3 or nltk or
+                        #50 most common words in all domains, use code from hw1 #3 or nltk or
 
-                    #add defragmented url to hyperlinks list
-                    hyperlinks.append(defragment[0])
+                        #add defragmented url to hyperlinks list
+                        hyperlinks.append(defragment[0])
+            else: # 49 or less, blacklist but still follow hrefs
+                blacklist.add(resp.url)
+                print('Blacklisted due to low content')
+                #look for hyperlinks on webpage
+                for r in soup.find_all('a'):            
+                    #defragment the url
+                    if r.get('href') != None and r.get('href') != "#": #none type error? 
+                        defragment = r.get('href').split("#")
+                        hyperlinks.append(defragment[0])
 
         #write info to report file
         f.seek(0)
@@ -96,7 +112,7 @@ def extract_next_links(url, resp):
         f.flush()
         f.write("unique urls: " + str(len(unique_urls)) + "\n")
         for url in unique_urls:
-            f.write(element + "\n")
+            f.write(url + "\n")
         f.flush()
     except Exception as e:
         print("error occurred", e)
@@ -120,6 +136,7 @@ def is_valid(url):
     
     #CHECKS
     #Crawl pages with high textual information content
+    
     #Detect and avoid infinite traps
     #Detect and avoid sets of similar pages with no info
     #Detect and avoid dead URLs that return a 200 status but no data
