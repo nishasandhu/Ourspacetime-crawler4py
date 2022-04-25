@@ -74,7 +74,7 @@ def extract_next_links(url, resp):
             #update max webpage if necessary
             if num_words > max_words:
                 max_words = num_words
-                max_webpage = defragment[0]
+                max_webpage = resp.url
 
             for r in soup.find_all('a'):            
                 #defragment the url
