@@ -80,8 +80,8 @@ def extract_next_links(url, resp):
                 #defragment the url
                 if r.get('href') != None and r.get('href') != "#": #none type error? 
                     defragment = r.get('href').split("#")
-                    
                     #50 most common words in all domains, use code from hw1 #3 or nltk or
+
                     #add defragmented url to hyperlinks list
                     hyperlinks.append(defragment[0])
 
@@ -108,7 +108,6 @@ def is_valid(url):
     # There are already some conditions that return False.
     
     global unique_urls
-    global blacklist
     
     #only crawl URLs with these domains
     only = [".ics.uci.edu/",
@@ -130,7 +129,7 @@ def is_valid(url):
       
     #only proceed with url if has correct domain
     if any(link in url for link in only):
-        print("^ Correct domain")
+        print(url + " should have correct domain.")
         try:
             parsed = urlparse(url)
             if parsed.scheme not in set(["http", "https"]):
@@ -152,12 +151,10 @@ def is_valid(url):
             try:
                 urllib.request.urlopen(url)
             except urllib.error.HTTPError:
-                print('Not 200 for web status. Blacklist.')
-                blacklist.add(url)
+                print('Not 200 for web status.')
                 return False  
             except urllib.error.URLError: #redirect
-                print('Redirecting site. Blacklist.')
-                blacklist.add(url)
+                print('Redirecting site.')
                 return False
             
             #check contents, set at 100 words at least
@@ -167,13 +164,10 @@ def is_valid(url):
             for r in soup.find_all('p'):            
                     s = s + len(r.get_text().split())
             if s < 100:
-                print('Low content. Blacklist.')
-                blacklist.add(url)
                 return False
             
             else:
-                print(url)
-                print("^ Added to unique urls")
+                print(url + " just added to unique urls")
                 unique_urls.add(url)#add to unique urls to mark as traversed
                 if ".ics.uci.edu" in url:
                     subdomains.add(url)#add to list of subdomains
