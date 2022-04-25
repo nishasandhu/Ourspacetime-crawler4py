@@ -70,18 +70,18 @@ def extract_next_links(url, resp):
             nltk_text2 = nltk.Text(text_divs)
             #number of words on webpage
             num_words = len(nltk_text) + len(nltk_text2)
+            
+            #update max webpage if necessary
+            if num_words > max_words:
+                max_words = num_words
+                max_webpage = defragment[0]
 
             for r in soup.find_all('a'):            
                 #defragment the url
                 if r.get('href') != None and r.get('href') != "#": #none type error? 
                     defragment = r.get('href').split("#")
-                    #update max webpage if necessary
-                    if num_words > max_words:
-                        max_words = num_words
-                        max_webpage = defragment[0]
-
+                    
                     #50 most common words in all domains, use code from hw1 #3 or nltk or
-
                     #add defragmented url to hyperlinks list
                     hyperlinks.append(defragment[0])
 
@@ -108,6 +108,7 @@ def is_valid(url):
     # There are already some conditions that return False.
     
     global unique_urls
+    global blacklist
     
     #only crawl URLs with these domains
     only = [".ics.uci.edu/",
@@ -124,13 +125,12 @@ def is_valid(url):
     #Detect and avoid crawling very large files, especially if they have low information value     
     
     if url in unique_urls or blacklist:
-            print("already visited or blacklisted")
+            print("Already visited or blacklisted.")
             return False #ensure the same url not entered again
       
     #only proceed with url if has correct domain
     if any(link in url for link in only):
-        print(url)
-        print("^ should have correct domain")
+        print("^ Correct domain")
         try:
             parsed = urlparse(url)
             if parsed.scheme not in set(["http", "https"]):
@@ -145,12 +145,21 @@ def is_valid(url):
                 + r"|thmx|mso|arff|rtf|jar|csv"
                 + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()):
                 return False
+            
+            #double check pdf and jpg
+            
             #check status of webpage
             try:
                 urllib.request.urlopen(url)
             except urllib.error.HTTPError:
-                print('not 200')
-                return False    
+                print('Not 200 for web status. Blacklist.')
+                blacklist.add(url)
+                return False  
+            except urllib.error.URLError: #redirect
+                print('Redirecting site. Blacklist.')
+                blacklist.add(url)
+                return False
+            
             #check contents, set at 100 words at least
             contents = urllib.request.urlopen(url)
             soup = BeautifulSoup(contents.read(), 'html.parser')
@@ -158,10 +167,13 @@ def is_valid(url):
             for r in soup.find_all('p'):            
                     s = s + len(r.get_text().split())
             if s < 100:
+                print('Low content. Blacklist.')
+                blacklist.add(url)
                 return False
+            
             else:
                 print(url)
-                print("^just added to unique urls")
+                print("^ Added to unique urls")
                 unique_urls.add(url)#add to unique urls to mark as traversed
                 if ".ics.uci.edu" in url:
                     subdomains.add(url)#add to list of subdomains
