@@ -166,14 +166,15 @@ def is_valid(url):
                 print('Cannot connect.')
                 return False
             else:
-                #check contents, set at 100 words at least
+                #check contents, set at 50 words at least
                 soup = BeautifulSoup(contents.read(), 'html.parser')
                 for r in soup.find_all('p'):            
                         s = s + len(r.get_text().split())
             
-            if s < 100:
-                blacklist.add(url)
-                return False
+            if s < 50:
+                blacklist.add(url) # ensure it will not crawl again
+                unique_urls.add(url) # still add as a unique url
+                return True # travel through once to look for hrefs
             
             else:
                 print(url + " just added to unique urls")
