@@ -150,9 +150,10 @@ def is_valid(url):
                 blacklist.add(url)
                 return False
             
+            s = 0 #count content
             #check status of webpage
             try:
-                urllib.request.urlopen(url)
+                contents = urllib.request.urlopen(url)
             except urllib.error.HTTPError:
                 print('Not 200 for web status.')
                 blacklist.add(url)
@@ -161,13 +162,15 @@ def is_valid(url):
                 print('Redirecting site.')
                 blacklist.add(url)
                 return False
+            except ConnectionRefusedError:
+                print('Cannot connect.')
+                return False
+            else:
+                #check contents, set at 100 words at least
+                soup = BeautifulSoup(contents.read(), 'html.parser')
+                for r in soup.find_all('p'):            
+                        s = s + len(r.get_text().split())
             
-            #check contents, set at 100 words at least
-            contents = urllib.request.urlopen(url)
-            soup = BeautifulSoup(contents.read(), 'html.parser')
-            s = 0
-            for r in soup.find_all('p'):            
-                    s = s + len(r.get_text().split())
             if s < 100:
                 blacklist.add(url)
                 return False
