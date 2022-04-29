@@ -1,4 +1,7 @@
-Number of subdomains: 75
+1. 6709 unique urls found
+2. Longest webpage: https://www.ics.uci.edu
+3. N/A
+4. Number of subdomains for "ics.uci.edu": 3921
 accessibility.ics.uci.edu : 1
 acoi.ics.uci.edu : 1
 aiclub.ics.uci.edu : 1

@@ -62,7 +62,7 @@ def extract_next_links(url, resp):
             soup_content = BeautifulSoup(resp.raw_response.content, 'html.parser')
 
             #gather all text on webpage
-            text_paragraphs = (''.join(s.findAll(text=True)) for s in soup_content.findAll('p')) #SOURCE:
+            text_paragraphs = (''.join(s.findAll(text=True)) for s in soup_content.findAll('p')) #SOURCE: https://stackoverflow.com/questions/46271528/counting-words-inside-a-webpage
             text_divs = (''.join(s.findAll(text=True)) for s in soup_content.findAll('div'))
 
             #convert to nltk text to tokenize
