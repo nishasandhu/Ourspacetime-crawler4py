@@ -7,8 +7,7 @@ def sort_domains():
     #value = num of pages w/key subdomain
     counted_subdomains = dict()
     
-    with open("report.txt", "w+") as file:
-        beginning_findings = file.readlines()[0:3]    #save report findings
+    with open("report", "r") as file:
         unique_urls = file.readlines()[3:]
         for url in unique_urls:
             #if url contains the domain - ics.uci.edu
@@ -19,21 +18,19 @@ def sort_domains():
         for url in subdomains:
             parsed = urlparse(url)
             #netloc gets the domain from the url
-            if parsed.netloc() in counted_subdomains:
+            if parsed.netloc in counted_subdomains:
                 #if subdomain exists in the dictionary - increase the count
-                counted_subdomains[parsed.netloc()] = counted_subdomains[parsed.netloc()] + 1
+                counted_subdomains[parsed.netloc] = counted_subdomains[parsed.netloc] + 1
             else:
-                counted_subdomains[parsed.netloc()] = 1
+                counted_subdomains[parsed.netloc] = 1
                 
                 
         #write findings to report
-        file.seek(0)
-        file.write(beginning_findings)
-        file.flush()
+       
         
-        file.write("Numbber of subdomains"+str(len(counted_subdomains)))
+        print("Number of subdomains: "+str(len(counted_subdomains)))
         for subdomain in sorted(counted_subdomains):
-            file.write("%s : %d" %subdomain, counted_subdomains[subdomain])
-        file.flush()
+            print("%s : %d" %(subdomain,counted_subdomains[subdomain]))
         
-        
+if __name__ == "__main__":
+    sort_domains()
