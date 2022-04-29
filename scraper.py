@@ -174,7 +174,7 @@ def is_valid(url):
             if s < 50:
                 blacklist.add(url) # ensure it will not crawl again
                 unique_urls.add(url) # still add as a unique url
-                return True # travel through once to look for hrefs
+                return False
             
             else:
                 print(url + " just added to unique urls")
